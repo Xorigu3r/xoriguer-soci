@@ -1,0 +1,6 @@
+{
+  "appId": "cat.xoriguer.soci",
+  "appName": "Soci",
+  "webDir": "www",
+  "android": { "backgroundColor": "#1E2A3B" }
+}

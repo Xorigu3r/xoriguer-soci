@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="apunta"
+        android:enabled="true"
+        android:icon="@drawable/drecera_mic"
+        android:shortcutShortLabel="@string/drecera"
+        android:shortcutLongLabel="@string/drecera_llarga">
+        <intent
+            android:action="cat.xoriguer.soci.ESCOLTA"
+            android:targetPackage="cat.xoriguer.soci"
+            android:targetClass="cat.xoriguer.soci.MainActivity" />
+    </shortcut>
+</shortcuts>

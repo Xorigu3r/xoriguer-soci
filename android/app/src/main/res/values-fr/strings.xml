@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="rajola">Note</string>
+    <string name="drecera">Note</string>
+    <string name="drecera_llarga">Dicte une note</string>
+    <string name="giny_desc">Dictez d\'un geste et voyez la suite</string>
+</resources>

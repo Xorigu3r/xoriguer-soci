@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Soci</string>
+    <string name="title_activity_main">Soci</string>
+    <string name="package_name">cat.xoriguer.soci</string>
+    <string name="custom_url_scheme">cat.xoriguer.soci</string>
+    <string name="rajola">Note</string>
+    <string name="drecera">Note</string>
+    <string name="drecera_llarga">Dictate a note</string>
+    <string name="giny_desc">Dictate with one tap and see what is next</string>
+</resources>

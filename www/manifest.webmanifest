@@ -1,0 +1,17 @@
+{
+  "name": "Xoriguer Soci",
+  "short_name": "Soci",
+  "description": "Li dictes una cosa, l'apunta i te la recorda parlant.",
+  "lang": "ca",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1E2A3B",
+  "theme_color": "#1E2A3B",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

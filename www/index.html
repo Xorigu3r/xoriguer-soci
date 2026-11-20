@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="ca">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#1E2A3B">
+  <title>Xoriguer Soci</title>
+  <meta name="description" content="Soci: li dictes una cosa, l'apunta i te la recorda parlant. Català, castellà, francès i anglès.">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/favicon.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="cap" data-no-t>
+    <img class="cap-falco" src="icons/simbol.png" alt="">
+    <div class="marca">
+      <div class="marca-mot" aria-label="Xoriguer">
+        <svg class="marca-x" viewBox="0 0 242 153" aria-hidden="true"><path fill="#F6EFE2" d="M96.3,19.0 L94.7,18.0 L46.7,18.3 L50.7,25.0 L73.0,53.3 L91.3,78.7 L15.3,140.0 L0.3,151.0 L0.0,152.7 L48.3,152.7 L139.7,79.3 L136.7,73.3Z M146.3,87.0 L146.7,88.7 L130.0,109.3 L129.0,112.3 L122.7,118.7 L147.0,152.3 L195.7,152.7 L195.7,151.3 L173.7,123.3 L147.7,87.7Z"/><path fill="#FF8A00" d="M241.7,0.0 L199.3,0.0 L137.3,51.0 L137.0,52.7 L152.3,74.0Z"/><path fill="#F2650F" d="M146.7,88.3 L144.7,88.7 L109.3,118.0 L103.3,122.0 L85.7,136.7 L72.0,149.7 L76.0,148.7 L91.0,139.7 L123.0,118.0 L128.7,112.3 L129.7,109.3Z"/></svg><span class="marca-resta">ORIGUER</span>
+      </div>
+      <div class="marca-sub">SOCI</div>
+    </div>
+  </header>
+
+  <main>
+    <!-- ================= INICI ================= -->
+    <section id="v-inici" class="vista activa">
+      <div id="avis-web" class="targeta avis" hidden>
+        <p><b>Versió web.</b> Aquí pots dictar i apuntar, però els avisos parlats només arriben amb l'app oberta.
+          Per rebre'ls sempre, instal·la l'APK <b>XoriguerSoci.apk</b>.</p>
+      </div>
+      <div id="avis-permisos" class="targeta avis" hidden>
+        <p><b>Falten permisos</b> perquè Soci t'escolti i t'avisi a l'hora.</p>
+        <button class="primari" data-ves="ajustos" data-ancora="permisos">Revisa'ls</button>
+      </div>
+
+      <div class="dictat">
+        <button id="mic" class="mic" aria-label="Parla">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15a3.5 3.5 0 0 0 3.5-3.5v-6a3.5 3.5 0 1 0-7 0v6A3.5 3.5 0 0 0 12 15Z" fill="currentColor"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21m-3.5 0h7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+        <p id="mic-estat" class="mic-estat">Toca i parla</p>
+        <p id="parcial" class="parcial" data-no-t></p>
+        <form id="f-ordre" class="ordre" autocomplete="off">
+          <input id="ordre" type="text" placeholder="O escriu: «dijous comprar patates al Macro, avisa'm»" enterkeyhint="send">
+          <button class="primari" aria-label="Envia">➜</button>
+        </form>
+      </div>
+
+      <div id="resposta" class="targeta resposta" hidden></div>
+
+      <div id="llista-inici"></div>
+      <div id="buit-inici" class="targeta exemples" hidden>
+        <h2>Prova de dir-li…</h2>
+        <ul data-no-t id="exemples"></ul>
+      </div>
+    </section>
+
+    <!-- ================= AGENDA ================= -->
+    <section id="v-agenda" class="vista">
+      <div class="targeta">
+        <div class="mes-cap">
+          <button class="discret" id="mes-ant" aria-label="Mes anterior">‹</button>
+          <h2 id="mes-nom" data-no-t></h2>
+          <button class="discret" id="mes-seg" aria-label="Mes següent">›</button>
+        </div>
+        <div id="calendari" class="calendari" data-no-t></div>
+      </div>
+      <div id="agenda-dia"></div>
+      <label class="interruptor petit"><input type="checkbox" id="mostra-fets"> <span>Mostra també les fetes</span></label>
+    </section>
+
+    <!-- ================= LLISTES ================= -->
+    <section id="v-llistes" class="vista">
+      <p class="suau">Les coses que has d'anar a fer o comprar, agrupades per lloc. Digues per exemple «apunta al Macro llet, ous i oli».</p>
+      <div id="llistes"></div>
+    </section>
+
+    <!-- ================= NOTES ================= -->
+    <section id="v-notes" class="vista">
+      <input id="cerca" type="search" class="cerca" placeholder="Cerca a tot el que has apuntat">
+      <div id="notes"></div>
+    </section>
+
+    <!-- ================= AJUSTOS ================= -->
+    <section id="v-ajustos" class="vista">
+      <div class="targeta" id="permisos" data-nomes-natiu>
+        <h2>Permisos</h2>
+        <ul class="passos">
+          <li id="p-microfon"><span class="punt"></span><div><b>Micròfon</b><small>Per escoltar el que li dius.</small></div><button data-permis="microfon">Permet</button></li>
+          <li id="p-notificacions"><span class="punt"></span><div><b>Avisos</b><small>Per mostrar els recordatoris.</small></div><button data-permis="notificacions">Permet</button></li>
+          <li id="p-alarmes"><span class="punt"></span><div><b>Alarmes a l'hora justa</b><small>Perquè els avisos no arribin uns minuts tard.</small></div><button data-permis="alarmes">Permet</button></li>
+          <li id="p-bateria"><span class="punt neutre"></span><div><b>Bateria sense restriccions</b><small>Recomanat: alguns mòbils aturen les apps en segon pla.</small></div><button data-permis="bateria">Obre</button></li>
+        </ul>
+      </div>
+
+      <div class="targeta">
+        <h2>Accés ràpid</h2>
+        <p class="suau">Per dictar amb un sol toc, sense obrir l'app:</p>
+        <ul class="punts">
+          <li><b>Giny</b>: mantén premuda la pantalla d'inici → <b>Ginys</b> → <b>Soci</b>.</li>
+          <li><b>Barra ràpida</b>: baixa la persiana → llapis ✎ → arrossega <b>Apunta</b> amunt.</li>
+          <li><b>Icona</b>: mantén premuda la icona de Soci → <b>Apunta</b>.</li>
+        </ul>
+        <button id="b-giny" data-nomes-natiu>Afegeix el giny a la pantalla d'inici</button>
+      </div>
+
+      <div class="targeta form">
+        <h2>Idioma i veu</h2>
+        <label>Idioma
+          <select id="a-idioma" data-no-t>
+            <option value="">Automàtic</option><option value="ca">Català</option><option value="es">Español</option><option value="fr">Français</option><option value="en">English</option>
+          </select>
+        </label>
+        <label>Nom de l'assistent <small>El que dius al principi: «hey soci…»</small><input id="a-nom" type="text" maxlength="20"></label>
+        <label class="interruptor"><input type="checkbox" id="a-confirma"> <span>Confirma en veu alta el que apunta</span></label>
+        <label class="interruptor"><input type="checkbox" id="a-parla"> <span>Diu els avisos en veu alta</span></label>
+        <label>Velocitat de la veu <input id="a-velocitat" type="range" min="0.6" max="1.6" step="0.1"></label>
+        <button id="b-prova-veu">Prova la veu</button>
+      </div>
+
+      <div class="targeta form">
+        <h2>Hores</h2>
+        <label>Si no dius l'hora <input id="a-defecte" type="time"></label>
+        <div class="tres">
+          <label>«al matí» <input id="a-mati" type="time"></label>
+          <label>«a la tarda» <input id="a-tarda" type="time"></label>
+          <label>«al vespre» <input id="a-vespre" type="time"></label>
+        </div>
+        <label class="interruptor"><input type="checkbox" id="a-avis"> <span>Avisa sempre que hi hagi data (encara que no diguis «avisa'm»)</span></label>
+      </div>
+
+      <div class="targeta form">
+        <h2>Silenci i resum</h2>
+        <label class="interruptor"><input type="checkbox" id="a-silenci"> <span>Silenci de nit: avisa sense parlar</span></label>
+        <div class="dos"><label>De <input id="a-silenci-de" type="time"></label><label>A <input id="a-silenci-a" type="time"></label></div>
+        <p class="suau petit">Amb el mòbil en silenci o vibració, Soci tampoc no parla.</p>
+        <label class="interruptor"><input type="checkbox" id="a-resum"> <span>Resum del matí: et diu què tens per fer avui</span></label>
+        <label>Hora del resum <input id="a-resum-hora" type="time"></label>
+      </div>
+
+      <div class="targeta">
+        <h2>Còpia de seguretat</h2>
+        <p class="suau" id="copia-info">Cada dia Soci en fa una còpia a <b>Documents/Soci</b>.</p>
+        <div class="botons">
+          <button id="b-exporta">Exporta</button>
+          <button id="b-importa">Importa</button>
+          <input type="file" id="f-importa" accept=".json,application/json" hidden>
+        </div>
+      </div>
+
+      <div class="targeta">
+        <h2>Fetes</h2>
+        <p class="suau" id="fets-info"></p>
+        <button class="perill" id="b-esborra-fets">Esborra les fetes</button>
+      </div>
+
+      <div class="targeta guia">
+        <h2>Què li pots dir</h2>
+        <details><summary>Apuntar</summary>
+          <p>Comença amb el nom (opcional) i <b>apunta</b>, <b>anota</b> o <b>recorda'm</b>:</p>
+          <ul class="punts" data-no-t id="g-apuntar"></ul>
+        </details>
+        <details><summary>Quan</summary>
+          <p><b>avui, demà, dijous, dijous que ve, el 15 de desembre, d'aquí 20 minuts</b>…
+            Hora: <b>a les 5</b> (vol dir 17 h), <b>a les 8 del matí</b>, <b>a dos quarts de sis</b>, <b>al vespre</b>.</p>
+          <p>Repetició: <b>cada dia, cada dilluns, entre setmana, el dia 1 de cada mes, cada any</b>.</p>
+          <p>Avís previ: <b>avisa'm el dia abans</b>, <b>una hora abans</b>, <b>10 minuts abans</b>.</p>
+        </details>
+        <details><summary>Preguntar</summary>
+          <ul class="punts" data-no-t id="g-preguntar"></ul>
+        </details>
+        <details><summary>Instal·lar l'APK (Play Protect)</summary>
+          <p>Si surt «App no segura»: <b>Més detalls → Instal·la igualment</b>. Si no et deixa, desactiva un moment Play Protect a Play Store → Play Protect.</p>
+        </details>
+      </div>
+      <p class="suau petit centre" data-no-t>Xoriguer Soci <span id="versio"></span></p>
+    </section>
+  </main>
+
+  <nav class="barra">
+    <button data-ves="inici" class="activa"><svg viewBox="0 0 24 24"><path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v5a3 3 0 0 0 3 3Zm-6-3a6 6 0 0 0 12 0M12 17v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Inici</span></button>
+    <button data-ves="agenda"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3.5 10h17M8 3v4m8-4v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Agenda</span></button>
+    <button data-ves="llistes"><svg viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="m3.5 6 1.2 1.2L6.8 5M3.5 12l1.2 1.2 2.1-2.2M3.5 18l1.2 1.2 2.1-2.2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Llistes</span></button>
+    <button data-ves="notes"><svg viewBox="0 0 24 24"><path d="M6 3.5h8l4.5 4.5v12.5H6Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M14 3.5V8h4.5M9 13h6m-6 3.5h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Notes</span></button>
+    <button data-ves="ajustos"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Ajustos</span></button>
+  </nav>
+
+  <!-- Editor -->
+  <dialog id="editor">
+    <form method="dialog" id="f-editor" class="form">
+      <h2 id="ed-titol">Edita</h2>
+      <label>Què <input id="ed-text" type="text"></label>
+      <label>On <input id="ed-lloc" type="text" list="llocs-coneguts"></label>
+      <datalist id="llocs-coneguts"></datalist>
+      <label>Articles <small>Un per línia</small><textarea id="ed-items" rows="3"></textarea></label>
+      <label class="interruptor"><input type="checkbox" id="ed-te-data"> <span>Amb data</span></label>
+      <div id="ed-data-bloc">
+        <div class="dos"><label>Dia <input id="ed-dia" type="date"></label><label>Hora <input id="ed-hora" type="time"></label></div>
+        <label>Es repeteix
+          <select id="ed-rep">
+            <option value="">No</option><option value="dia">Cada dia</option><option value="setmana">Cada setmana</option><option value="mes">Cada mes</option><option value="any">Cada any</option>
+          </select>
+        </label>
+        <div id="ed-dies" class="xips" hidden></div>
+        <label class="interruptor"><input type="checkbox" id="ed-avis"> <span>Avisa'm</span></label>
+        <label>Avís previ
+          <select id="ed-abans">
+            <option value="0">Cap</option><option value="10">10 minuts abans</option><option value="30">30 minuts abans</option><option value="60">1 hora abans</option><option value="180">3 hores abans</option><option value="1440">El dia abans</option><option value="10080">Una setmana abans</option>
+          </select>
+        </label>
+      </div>
+      <div id="ed-original-bloc"><small>Dictat original</small><p id="ed-original" class="original" data-no-t></p></div>
+      <div class="botons">
+        <button value="desa" class="primari">Desa</button>
+        <button value="cancel" class="discret" formnovalidate>Cancel·la</button>
+        <button value="esborra" class="perill" id="ed-esborra">Esborra</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="avis-toast" class="toast" hidden></div>
+
+  <script src="capacitor.js"></script>
+  <script src="i18n.js"></script>
+  <script src="traduccions.js"></script>
+  <script src="interpret.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+{
+  "name": "xoriguer-soci",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Soci: assistent de veu que apunta, recorda i avisa parlant (ca, es, fr, en)",
+  "scripts": {
+    "icons": "python -I eines/genera_logo.py && npx capacitor-assets generate --android --iconBackgroundColor #1E2A3B --splashBackgroundColor #1E2A3B --splashBackgroundColorDark #1E2A3B",
+    "test": "node test.mjs",
+    "serve": "node scripts/serve.mjs 8796",
+    "copy:cap": "node -e \"require('fs').copyFileSync('node_modules/@capacitor/core/dist/capacitor.js','www/capacitor.js')\"",
+    "sync": "npm run copy:cap && npx cap sync android",
+    "apk": "npm run sync && powershell -ExecutionPolicy Bypass -File scripts/build-apk.ps1"
+  },
+  "dependencies": {
+    "@capacitor/android": "8.6.0",
+    "@capacitor/core": "8.6.0"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^4.0.0",
+    "@capacitor/cli": "8.6.0"
+  }
+}

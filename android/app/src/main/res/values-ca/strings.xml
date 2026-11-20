@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="rajola">Apunta</string>
+    <string name="drecera">Apunta</string>
+    <string name="drecera_llarga">Dicta una cosa</string>
+    <string name="giny_desc">Dicta amb un toc i mira què toca</string>
+</resources>
