@@ -74,6 +74,8 @@
   };
   const PREP_MARCA = { ca: { macro: 'al', makro: 'al', lidl: 'al', carrefour: 'al', 'el corte ingles': 'a', 'corte ingles': 'al', ikea: 'a l\'', aldi: 'a l\'', alcampo: 'a l\'', esclat: 'a l\'', ametller: 'a l\'', action: 'a l\'' }, es: { }, fr: { }, en: { } };
   const PREP_DEF = { ca: 'a', es: 'en', fr: 'à', en: 'at' };
+  const CASA = { ca: [['casa', 'casa', 'a'], ['feina', 'feina', 'a la']], es: [['casa', 'casa', 'en'], ['trabajo', 'trabajo', 'en el']],
+    fr: [['la maison', 'maison', 'à la'], ['maison', 'maison', 'à la'], ['travail', 'travail', 'au']], en: [['home', 'home', 'at'], ['work', 'work', 'at']] };
 
   // Expressions per llengua (sobre text pla). NOM = nom de l'assistent.
   const R = {
@@ -109,17 +111,38 @@
       quarts: "\\b(?:a\\s+|cap\\s+a\\s+)?(un|dos|tres)\\s+quarts?\\s+(?:de\\s+|d'\\s?)(NUM)(?:\\s+(PER))?\\b",
       migdia: "\\b(?:al|cap\\s+al|a)\\s+migdia\\b",
       per: { 'del mati': 'mati', 'de la matinada': 'mati', 'de la tarda': 'tarda', 'del vespre': 'vespre', 'de la nit': 'vespre', 'del migdia': 'migdia' },
-      periodes: [["\\b(?:a\\s+)?primera\\s+hora(?:\\s+del\\s+mati)?\\b", 'primera'], ["\\b(?:aquest|al|pel|el)\\s+mati\\b", 'mati'], ["\\b(?:aquesta|a\\s+la|per\\s+la|la)\\s+tarda\\b", 'tarda'],
+      periodes: [["\\bdespres\\s+de\\s+dinar\\b", 'despresDinar'], ["\\babans\\s+de\\s+dinar\\b", 'abansDinar'], ["\\bdespres\\s+de\\s+sopar\\b", 'despresSopar'], ["\\babans\\s+de\\s+sopar\\b", 'abansSopar'], ["\\b(?:en\\s+llevar\\s?-?\\s?me|quan\\s+em\\s+llevi)\\b", 'primera'],
+        ["\\b(?:a\\s+)?primera\\s+hora(?:\\s+del\\s+mati)?\\b", 'primera'], ["\\b(?:aquest|al|pel|el)\\s+mati\\b", 'mati'], ["\\b(?:aquesta|a\\s+la|per\\s+la|la)\\s+tarda\\b", 'tarda'],
         ["\\b(?:aquest|al|pel|el)\\s+vespre\\b", 'vespre'], ["\\b(?:aquesta|a\\s+la|per\\s+la|la)\\s+nit\\b", 'vespre']],
       avuiPer: "\\b(?:aquest|aquesta)\\s+(?:mati|tarda|vespre|nit|migdia)\\b",
+      // accions sobre el que ja hi ha apuntat (1.1)
+      accDesfes: "^(?:desfes(?:\\s?-?\\s?ho)?|desfer)\\b",
+      accAfegeix: "^(?:i\\s+)?(?:afegeix\\s?-?\\s?hi|posa\\s?-?\\s?hi|i\\s+tambe|tambe)\\b",
+      accFet: "^(?:(?:ja\\s+)?(?:esta|es)\\s+fet(?:a)?\\b|ja\\s+ho\\s+tinc\\b|(?:ja\\s+)?(?:fet|feta|fets|fetes|acabat|acabada)\\b|marca(?:\\s?-?\\s?(?:ho|la|lo))?\\b(?=.*\\bfeta?\\s*$)|ja\\s+he\\s+(?!de\\b))",
+      accFetCua: "\\b(?:com\\s+(?:a\\s+)?)?feta?\\s*$",
+      accEsborra: "^(?:esborra|elimina|cancel.?la|anul.?la|oblida)(?:\\s?-?\\s?(?:ho|la|lo|les|los))?\\b",
+      accMou: "^(?:canvia|mou|passa|ajorna|avanca|endarrereix|posposa|retarda)(?:\\s?-?\\s?(?:ho|la|lo|les|los))?\\b",
+      durada: "\\b(NUM)\\s+(minuts?|min|hores?|hora|dies|dia|setmanes|setmana)(?:\\s+i\\s+(MITJA))?\\b|\\b(mitja)\\s+hora\\b",
+      insisteix: "\\b(?:i\\s+)?(?:insisteix|fins\\s+que\\s+(?:(?:ho|la|el|les|els)\\s+)?(?:faci|fem|compri|tingui|marqui)(?:\\s+(?:com\\s+a\\s+)?fet)?|no\\s+(?:paris|deixis)\\s+d'?\\s?(?:avisar\\s?-?\\s?me|insistir))\\b",
+      // 1.2: llocs, aparcar, repeticions amb interval, compte enrere
+      onArriba: "\\b(?:quan|en)\\s+(?:arribi|arribem|arribar|sigui|siguem|passi|passem|passar)\\s+(?:per\\s+(?:la\\s+|el\\s+|l')?|pel\\s+|a\\s+cal\\s+|a\\s+can\\s+|a\\s+la\\s+|a\\s+l'\\s?|al\\s+|a\\s+)?",
+      onSurt: "\\b(?:quan|en)\\s+(?:surti|sortim|sortir|marxi|marxar)\\s+(?:de\\s+cal\\s+|de\\s+can\\s+|de\\s+la\\s+|de\\s+l'\\s?|del\\s+|de\\s+|d'\\s?)?",
+      desaLloc: "^(?:ara\\s+)?(?:soc|estic|som|estem)\\s+(?:a\\s+cal|a\\s+can|a\\s+la|a\\s+l'|al|a)\\s*(.+)$|^(?:desa|guarda|apunta)\\s+(?:aquest\\s+lloc|on\\s+soc|aqui)\\s+com\\s+(?:a\\s+)?(.+)$|^aqui\\s+es\\s+(.+)$",
+      aparca: "\\b(?:he\\s+aparcat|hem\\s+aparcat|aparcat\\s+aqui|el\\s+cotxe\\s+es\\s+aqui|deixo\\s+el\\s+cotxe)\\b",
+      onCotxe: "\\b(?:on\\s+(?:he|hem)\\s+aparcat|on\\s+(?:es|tinc|he\\s+deixat)\\s+el\\s+cotxe)\\b",
+      compte: "^\\s*quant(?:s|es)?\\s+(?:dies\\s+|temps\\s+)?(?:falta|falten|queda|queden)\\b",
+      repN: "\\bcada\\s+(NUM)\\s+(dies|setmanes|mesos|anys)\\b",
+      repUltimDia: "\\b(?:l'\\s?|el\\s+)?ultim\\s+dia\\s+(?:de|del)\\s+(?:cada\\s+)?mes\\b",
+      repNth: "\\b(?:el\\s+|l'\\s?)?(primer|segon|tercer|quart|ultim)\\s+(DIA)\\s+(?:de\\s+cada|del)\\s+mes\\b",
+      ordinals: { primer: 1, segon: 2, tercer: 3, quart: 4, ultim: -1 },
       pregunta: "^(?:que|quin|quina|quins|quines|quan|on|com|qui|quant|quanta|quants|quantes|digues(?:\\s?-?\\s?me)?|llegeix(?:\\s?-?\\s?me)?|recordes|saps|em\\s+dius|tinc\\s+(?:alguna\\s+cosa|res)|hi\\s+ha\\s+(?:alguna\\s+cosa|res))\\b",
       pendent: "\\b(?:pendents?|per\\s+fer|que\\s+falta)\\b",
       prepLloc: "(?:(?:al|a\\s+la|a\\s+l'|a\\s+cal|a|del|de\\s+la|de\\s+l'|de|el|la|l')\\s*)?",
-      verbs: "(?:comprar|agafar|portar|recollir|buscar|demanar)",
+      verbs: "(?:comprar|agafar|portar|recollir|buscar|demanar|compra|agafa|porta|recull|busca|demana)",
       sep: "\\s*,\\s*|\\s+i\\s+",
       llista: "\\b(?:a\\s+)?la\\s+llista(?:\\s+de\\s+la\\s+compra|\\s+de\\s+l'|\\s+del?)?\\b",
       buits: ['que', 'de', 'i', 'per', 'per a', 'a', 'al', 'un', 'una', 'he de', 'cal', 'tambe', 'tambe que', 'si us plau'],
-      stop: 'que tinc tenia tenim tens he haig havia hem de del dels el la els les a al als i o per un una uns unes quin quina quins quines era es son eren apuntat apunta vaig fer cosa coses alguna res hi ha em dius digues me recordes saps on com quan qui quant amb sense meu meva mes',
+      stop: 'que tinc tenia tenim tens he haig havia hem de del dels el la els les a al als i o per un una uns unes quin quina quins quines era es son eren apuntat apunta vaig fer cosa coses alguna res hi ha em dius digues me recordes saps on com quan qui quant amb sense meu meva mes ho aixo ultim ultima darrer darrera anterior hi tambe fins',
     },
     es: {
       salut: "(?:hey|oye|eh|ey|hola|ok|okay|escucha)",
@@ -153,17 +176,36 @@
       quarts: "(?!x)x",
       migdia: "\\b(?:al|a)\\s+mediodia\\b",
       per: { 'de la manana': 'mati', 'de la madrugada': 'mati', 'de la tarde': 'tarda', 'de la noche': 'vespre', 'del mediodia': 'migdia' },
-      periodes: [["\\b(?:a\\s+)?primera\\s+hora(?:\\s+de\\s+la\\s+manana)?\\b", 'primera'], ["\\b(?:esta|por\\s+la|de\\s+la)\\s+manana\\b", 'mati'], ["\\b(?:esta|por\\s+la|de\\s+la|a\\s+la)\\s+tarde\\b", 'tarda'],
+      periodes: [["\\bdespues\\s+de\\s+comer\\b", 'despresDinar'], ["\\bantes\\s+de\\s+comer\\b", 'abansDinar'], ["\\bdespues\\s+de\\s+cenar\\b", 'despresSopar'], ["\\bantes\\s+de\\s+cenar\\b", 'abansSopar'], ["\\b(?:al\\s+levantarme|cuando\\s+me\\s+levante)\\b", 'primera'],
+        ["\\b(?:a\\s+)?primera\\s+hora(?:\\s+de\\s+la\\s+manana)?\\b", 'primera'], ["\\b(?:esta|por\\s+la|de\\s+la)\\s+manana\\b", 'mati'], ["\\b(?:esta|por\\s+la|de\\s+la|a\\s+la)\\s+tarde\\b", 'tarda'],
         ["\\b(?:esta|por\\s+la|de\\s+la|a\\s+la)\\s+noche\\b", 'vespre']],
       avuiPer: "\\b(?:esta)\\s+(?:manana|tarde|noche)\\b",
+      accDesfes: "^(?:deshaz(?:lo)?|deshacer)\\b",
+      accAfegeix: "^(?:y\\s+)?(?:(?:anade|agrega|pon)(?:le)?\\s+tambien|y\\s+tambien|tambien)\\b",
+      accFet: "^(?:(?:ya\\s+)?esta\\s+hech[oa]\\b|ya\\s+lo\\s+tengo\\b|(?:ya\\s+)?(?:hecho|hecha|hechos|terminado|listo)\\b|marca(?:lo|la)?\\b(?=.*\\bhech[oa]\\s*$)|ya\\s+he\\s+(?!de\\b))",
+      accFetCua: "\\b(?:como\\s+)?hech[oa]\\s*$",
+      accEsborra: "^(?:borra|elimina|cancela|anula|olvida)(?:lo|la|los|las)?\\b",
+      accMou: "^(?:cambia|mueve|pasa|aplaza|adelanta|retrasa|pospon|posponer)(?:lo|la|los|las)?\\b",
+      durada: "\\b(NUM)\\s+(minutos?|min|horas?|dias?|semanas?)(?:\\s+y\\s+(MITJA))?\\b|\\b(media)\\s+hora\\b",
+      insisteix: "\\b(?:y\\s+)?(?:insiste|insisteme|hasta\\s+que\\s+(?:(?:lo|la)\\s+)?(?:haga|compre|tenga|marque)(?:\\s+(?:como\\s+)?hecho)?|no\\s+(?:pares|dejes)\\s+de\\s+(?:avisarme|insistir))\\b",
+      onArriba: "\\b(?:cuando|al)\\s+(?:llegue|lleguemos|llegar|este|estemos|pase|pasemos|pasar)\\s+(?:por\\s+(?:el\\s+|la\\s+)?|a\\s+casa\\s+de\\s+|a\\s+la\\s+|al\\s+|a\\s+|en\\s+(?:el\\s+|la\\s+)?)?",
+      onSurt: "\\b(?:cuando|al)\\s+(?:salga|salgamos|salir|me\\s+vaya|irme)\\s+(?:de\\s+la\\s+|del\\s+|de\\s+)?",
+      desaLloc: "^(?:ahora\\s+)?(?:estoy|estamos)\\s+(?:en\\s+(?:el|la)|en|al|a\\s+la)\\s*(.+)$|^(?:guarda|apunta)\\s+(?:este\\s+sitio|este\\s+lugar|donde\\s+estoy|aqui)\\s+como\\s+(.+)$|^aqui\\s+es\\s+(.+)$",
+      aparca: "\\b(?:he\\s+aparcado|hemos\\s+aparcado|aparcado\\s+aqui|el\\s+coche\\s+esta\\s+aqui|dejo\\s+el\\s+coche)\\b",
+      onCotxe: "\\b(?:donde\\s+(?:he|hemos)\\s+aparcado|donde\\s+(?:esta|tengo|he\\s+dejado)\\s+el\\s+coche)\\b",
+      compte: "^\\s*cuant(?:os|as)?\\s+(?:dias\\s+|tiempo\\s+)?(?:falta|faltan|queda|quedan)\\b",
+      repN: "\\bcada\\s+(NUM)\\s+(dias|semanas|meses|anos)\\b",
+      repUltimDia: "\\b(?:el\\s+)?ultimo\\s+dia\\s+de(?:l)?\\s+(?:cada\\s+)?mes\\b",
+      repNth: "\\b(?:el\\s+)?(primer|segundo|tercer|cuarto|ultimo)\\s+(DIA)\\s+de(?:l|\\s+cada)\\s+mes\\b",
+      ordinals: { primer: 1, segundo: 2, tercer: 3, cuarto: 4, ultimo: -1 },
       pregunta: "^(?:que|cual|cuales|cuando|donde|como|quien|cuanto|cuanta|cuantos|cuantas|dime|leeme|recuerdas|sabes|tengo\\s+algo|hay\\s+algo)\\b",
       pendent: "\\b(?:pendientes?|por\\s+hacer|que\\s+falta)\\b",
       prepLloc: "(?:(?:al|a\\s+la|a|en\\s+el|en\\s+la|en|del|de\\s+la|de|el|la)\\s*)?",
-      verbs: "(?:comprar|coger|traer|llevar|recoger|buscar|pedir)",
+      verbs: "(?:comprar|coger|traer|llevar|recoger|buscar|pedir|compra|coge|trae|lleva|recoge|busca|pide)",
       sep: "\\s*,\\s*|\\s+y\\s+|\\s+e\\s+",
       llista: "\\b(?:a\\s+)?la\\s+lista(?:\\s+de\\s+la\\s+compra|\\s+del?)?\\b",
       buits: ['que', 'de', 'y', 'para', 'por', 'a', 'al', 'un', 'una', 'tengo que', 'hay que', 'tambien', 'por favor'],
-      stop: 'que tengo tenia tenemos tienes he habia hemos de del el la los las a al y o para por un una unos unas cual cuales era es son eran apunte apuntado hice cosa cosas algo nada hay me dices dime recuerdas sabes donde como cuando quien cuanto con sin mi mis',
+      stop: 'que tengo tenia tenemos tienes he habia hemos de del el la los las a al y o para por un una unos unas cual cuales era es son eran apunte apuntado hice cosa cosas algo nada hay me dices dime recuerdas sabes donde como cuando quien cuanto con sin mi mis lo eso esto ultimo ultima anterior tambien hasta',
     },
     fr: {
       salut: "(?:hey|he|eh|ok|okay|salut|dis|ecoute)",
@@ -197,17 +239,36 @@
       quarts: "(?!x)x",
       migdia: "\\b(?:a|vers)\\s+midi\\b",
       per: { 'du matin': 'mati', "de l'apres-midi": 'tarda', "de l'apres midi": 'tarda', 'du soir': 'vespre', 'de la nuit': 'vespre' },
-      periodes: [["\\b(?:a\\s+la\\s+)?premiere\\s+heure\\b|\\b(?:tot\\s+le\\s+matin)\\b", 'primera'], ["\\b(?:ce|le|du|dans\\s+la)\\s+matin(?:ee)?\\b", 'mati'],
+      periodes: [["\\bapres\\s+(?:le\\s+)?(?:dejeuner|manger)\\b", 'despresDinar'], ["\\bavant\\s+(?:le\\s+)?(?:dejeuner|manger)\\b", 'abansDinar'], ["\\bapres\\s+(?:le\\s+)?diner\\b", 'despresSopar'], ["\\bavant\\s+(?:le\\s+)?diner\\b", 'abansSopar'], ["\\bau\\s+reveil\\b", 'primera'],
+        ["\\b(?:a\\s+la\\s+)?premiere\\s+heure\\b|\\b(?:tot\\s+le\\s+matin)\\b", 'primera'], ["\\b(?:ce|le|du|dans\\s+la)\\s+matin(?:ee)?\\b", 'mati'],
         ["\\b(?:cet|l'|dans\\s+l')\\s?apres\\s?-?\\s?midi\\b", 'tarda'], ["\\b(?:ce|le|dans\\s+la)\\s+soir(?:ee)?\\b", 'vespre'], ["\\b(?:cette|la)\\s+nuit\\b", 'vespre']],
       avuiPer: "\\b(?:ce\\s+matin|cet\\s+apres\\s?-?\\s?midi|ce\\s+soir|cette\\s+nuit)\\b",
+      accDesfes: "^(?:annule\\s+(?:ca|cela)|defais(?:\\s+ca)?)\\b",
+      accAfegeix: "^(?:et\\s+)?(?:ajoute\\s?-?\\s?y|ajoute\\s+aussi|aussi)\\b",
+      accFet: "^(?:c'?\\s?est\\s+fait\\b|(?:deja\\s+)?(?:fait|faite|termine|terminee|fini)\\b|marque(?:\\s?-?\\s?(?:le|la))?\\b(?=.*\\bfaite?\\s*$)|j'?\\s?ai\\s+deja\\s+)",
+      accFetCua: "\\b(?:comme\\s+)?faite?\\s*$",
+      accEsborra: "^(?:supprime|efface|annule|oublie|enleve)(?:\\s?-?\\s?(?:le|la|les))?\\b",
+      accMou: "^(?:change|deplace|decale|reporte|repousse|avance|retarde)(?:\\s?-?\\s?(?:le|la|les))?\\b",
+      durada: "\\b(NUM)\\s+(minutes?|min|heures?|jours?|semaines?)(?:\\s+et\\s+(MITJA))?\\b|\\b(demi)\\s?-?\\s?heure\\b",
+      insisteix: "\\b(?:et\\s+)?(?:insiste|jusqu'?\\s?a\\s+ce\\s+que\\s+je\\s+(?:(?:le|la)\\s+)?(?:fasse|marque|achete)|n'?\\s?arrete\\s+pas\\s+de\\s+(?:me\\s+le\\s+rappeler|me\\s+prevenir))\\b",
+      onArriba: "\\b(?:quand\\s+j'?\\s?(?:arrive|serai|passe)|en\\s+arrivant|en\\s+passant)\\s+(?:par\\s+(?:le\\s+|la\\s+)?|chez\\s+(?:le\\s+)?|a\\s+la\\s+|a\\s+l'\\s?|au\\s+|a\\s+)?",
+      onSurt: "\\b(?:quand\\s+je\\s+(?:sors|pars|quitte)|en\\s+sortant|en\\s+partant|en\\s+quittant)\\s+(?:de\\s+chez\\s+|de\\s+la\\s+|de\\s+l'\\s?|du\\s+|de\\s+|d'\\s?|la\\s+|le\\s+|l'\\s?)?",
+      desaLloc: "^(?:je\\s+suis|nous\\s+sommes)\\s+(?:chez\\s+le|chez|a\\s+la|a\\s+l'|au|a)\\s*(.+)$|^(?:enregistre|garde|note)\\s+(?:cet\\s+endroit|ici|ou\\s+je\\s+suis)\\s+comme\\s+(.+)$|^ici\\s+c'?\\s?est\\s+(.+)$",
+      aparca: "\\b(?:j'?\\s?ai\\s+gare|je\\s+suis\\s+gare|on\\s+s'?\\s?est\\s+gare|ma\\s+voiture\\s+est\\s+ici|je\\s+laisse\\s+la\\s+voiture)\\b",
+      onCotxe: "\\b(?:ou\\s+(?:j'?\\s?ai|est\\s?-?\\s?ce\\s+que\\s+j'?\\s?ai)\\s+gare|ou\\s+est\\s+(?:ma|la)\\s+voiture)\\b",
+      compte: "^\\s*(?:dans\\s+)?combien\\s+de\\s+(?:jours|temps)\\b",
+      repN: "\\btou(?:te)?s\\s+les\\s+(NUM)\\s+(jours|semaines|mois|ans)\\b",
+      repUltimDia: "\\b(?:le\\s+)?dernier\\s+jour\\s+(?:du|de\\s+chaque)\\s+mois\\b",
+      repNth: "\\b(?:le\\s+)?(premier|deuxieme|troisieme|quatrieme|dernier)\\s+(DIA)\\s+(?:de\\s+chaque|du)\\s+mois\\b",
+      ordinals: { premier: 1, deuxieme: 2, troisieme: 3, quatrieme: 4, dernier: -1 },
       pregunta: "^(?:qu'?\\s?est\\s?-?\\s?ce\\s+que|que|quoi|quel|quelle|quels|quelles|quand|ou|comment|qui|combien|dis\\s?-?\\s?moi|lis\\s?-?\\s?moi|est\\s?-?\\s?ce\\s+que\\s+j'?\\s?ai|j'?\\s?ai\\s+quoi|tu\\s+te\\s+souviens)\\b",
       pendent: "\\b(?:en\\s+attente|a\\s+faire|qui\\s+reste)\\b",
       prepLloc: "(?:(?:au|a\\s+la|a\\s+l'|a|chez\\s+le|chez|du|de\\s+la|de\\s+l'|de|le|la|l')\\s*)?",
-      verbs: "(?:acheter|prendre|ramener|apporter|chercher|recuperer|commander)",
+      verbs: "(?:acheter|prendre|ramener|apporter|chercher|recuperer|commander|achete|prends|ramene|apporte|cherche|recupere|commande)",
       sep: "\\s*,\\s*|\\s+et\\s+",
       llista: "\\b(?:sur\\s+|a\\s+)?la\\s+liste(?:\\s+de\\s+courses|\\s+des\\s+courses|\\s+du|\\s+de)?\\b",
       buits: ['que', 'qu\'', 'de', 'd\'', 'et', 'pour', 'a', 'au', 'un', 'une', 'aussi', 's\'il te plait'],
-      stop: "que qu quoi est ce j ai avais avons as dois de du des le la les a au aux et ou pour un une quel quelle quels quelles etait c note noter chose choses rien dis moi lis tu te souviens ou comment quand qui combien avec sans mon ma mes",
+      stop: "que qu quoi est ce j ai avais avons as dois de du des le la les a au aux et ou pour un une quel quelle quels quelles etait c note noter chose choses rien dis moi lis tu te souviens ou comment quand qui combien avec sans mon ma mes cela dernier derniere aussi jusqu avant",
     },
     en: {
       salut: "(?:hey|hi|ok|okay|yo|listen)",
@@ -242,9 +303,28 @@
       quarts: "\\b(?:at\\s+)?(half|(?:a\\s+)?quarter)\\s+(past|to)\\s+(NUM)(?:\\s+(PER))?\\b",
       migdia: "\\b(?:at\\s+)?(?:noon|midday)\\b",
       per: { 'in the morning': 'mati', 'in the afternoon': 'tarda', 'in the evening': 'vespre', 'at night': 'vespre' },
-      periodes: [["\\b(?:first\\s+thing(?:\\s+in\\s+the\\s+morning)?)\\b", 'primera'], ["\\b(?:in\\s+the|this)\\s+morning\\b", 'mati'], ["\\b(?:in\\s+the|this)\\s+afternoon\\b", 'tarda'],
+      periodes: [["\\bafter\\s+lunch\\b", 'despresDinar'], ["\\bbefore\\s+lunch\\b", 'abansDinar'], ["\\bafter\\s+dinner\\b", 'despresSopar'], ["\\bbefore\\s+dinner\\b", 'abansSopar'], ["\\bwhen\\s+i\\s+wake\\s+up\\b", 'primera'],
+        ["\\b(?:first\\s+thing(?:\\s+in\\s+the\\s+morning)?)\\b", 'primera'], ["\\b(?:in\\s+the|this)\\s+morning\\b", 'mati'], ["\\b(?:in\\s+the|this)\\s+afternoon\\b", 'tarda'],
         ["\\b(?:in\\s+the|this)\\s+evening\\b|\\btonight\\b|\\bat\\s+night\\b", 'vespre']],
       avuiPer: "\\b(?:this\\s+(?:morning|afternoon|evening)|tonight)\\b",
+      accDesfes: "^(?:undo(?:\\s+(?:that|it))?)\\b",
+      accAfegeix: "^(?:and\\s+)?(?:also|add\\s+(?:to\\s+it|too)|plus)\\b",
+      accFet: "^(?:(?:it'?\\s?s\\s+)?done\\b|(?:i'?\\s?m\\s+)?finished\\b|completed?\\b|mark(?:\\s+(?:it|that))?\\b(?=.*\\b(?:done|complete)\\s*$)|tick\\s+off\\b|check\\s+off\\b|i(?:'?\\s?ve|\\s+have)?\\s+already\\s+|already\\s+)",
+      accFetCua: "\\b(?:as\\s+)?(?:done|completed?)\\s*$",
+      accEsborra: "^(?:delete|remove|cancel|forget|erase|scratch)(?:\\s+(?:it|that))?\\b",
+      accMou: "^(?:move|change|reschedule|push|shift|postpone|snooze|delay)(?:\\s+(?:it|that))?\\b",
+      durada: "\\b(NUM)\\s+(minutes?|mins?|hours?|days?|weeks?)(?:\\s+and\\s+a\\s+(MITJA))?\\b|\\b(half)\\s+an\\s+hour\\b",
+      insisteix: "\\b(?:and\\s+)?(?:keep\\s+(?:reminding|nagging)\\s+me|nag\\s+me|until\\s+i\\s+(?:do|mark|tick\\s+off|buy)\\s*(?:it|that)?(?:\\s+(?:as\\s+)?done)?|insist)\\b",
+      onArriba: "\\bwhen\\s+(?:i|we)\\s+(?:get|arrive|am|'?m|are|'?re|pass|go)\\s+(?:by\\s+(?:the\\s+)?|to\\s+the\\s+|to\\s+|at\\s+the\\s+|at\\s+|in\\s+)?",
+      onSurt: "\\bwhen\\s+(?:i|we)\\s+(?:leave|go\\s+out\\s+of|get\\s+out\\s+of)\\s+(?:the\\s+)?",
+      desaLloc: "^(?:i'?\\s?m|i\\s+am|we'?\\s?re|we\\s+are)\\s+(?:at\\s+the|at|in\\s+the|in)\\s+(.+)$|^(?:save|mark)\\s+(?:this\\s+place|here|where\\s+i\\s+am)\\s+as\\s+(?:the\\s+)?(.+)$|^this\\s+is\\s+(?:the\\s+)?(.+)$",
+      aparca: "\\b(?:i\\s+(?:have\\s+|'?ve\\s+)?(?:just\\s+)?parked|we\\s+(?:have\\s+|'?ve\\s+)?parked|my\\s+car\\s+is\\s+here|parked\\s+here)\\b",
+      onCotxe: "\\b(?:where\\s+(?:did|have)\\s+(?:i|we)\\s+park(?:ed)?|where(?:'?s|\\s+is)\\s+(?:my|the)\\s+car)\\b",
+      compte: "^\\s*how\\s+(?:many\\s+days|long)\\s+(?:until|till|to|before|left|is\\s+it\\s+(?:until|till))\\b",
+      repN: "\\bevery\\s+(NUM|other)\\s+(days?|weeks?|months?|years?)\\b",
+      repUltimDia: "\\b(?:on\\s+)?the\\s+last\\s+day\\s+of\\s+(?:the|every|each)\\s+month\\b",
+      repNth: "\\b(?:on\\s+)?the\\s+(first|second|third|fourth|last)\\s+(DIA)\\s+of\\s+(?:every|each|the)\\s+month\\b",
+      ordinals: { first: 1, second: 2, third: 3, fourth: 4, last: -1 },
       pregunta: "^(?:what|what'?\\s?s|whats|which|when|where|how|who|tell\\s+me|read\\s+me|do\\s+i\\s+have|have\\s+i\\s+got|did\\s+i|is\\s+there|are\\s+there)\\b",
       pendent: "\\b(?:pending|to\\s+do|left|outstanding)\\b",
       prepLloc: "(?:(?:at\\s+the|at|to\\s+the|to|from\\s+the|from|in\\s+the|in|the)\\s*)?",
@@ -252,7 +332,7 @@
       sep: "\\s*,\\s*|\\s+and\\s+",
       llista: "\\b(?:to|on)\\s+(?:the|my)\\s+(?:shopping\\s+)?list\\b",
       buits: ['that', 'to', 'and', 'for', 'at', 'of', 'also', 'please'],
-      stop: 'what whats s do does did i have has had got to the a an and or for of at on in which is was are were note noted thing things anything something there tell me read remember where how when who with without my is it',
+      stop: 'what whats s do does did i have has had got to the a an and or for of at on in which is was are were note noted thing things anything something there tell me read remember where how when who with without my is it last one also too until by',
     },
   };
 
@@ -314,23 +394,44 @@
 
   // ---------------------------------------------------------------- repeticions
   /** Pròxima data estrictament després de `d` (mateixa hora) segons la regla. */
+  /** El n-è dia de la setmana dsem (1 = dilluns) del mes; n = -1 és l'últim. null si no n'hi ha (5è). */
+  function nthDia(a, m, n, dsem, h, mi) {
+    if (n > 0) {
+      const d = 1 + ((dsem - diaSet(new Date(a, m, 1)) + 7) % 7) + 7 * (n - 1);
+      return d > diesMes(a, m) ? null : new Date(a, m, d, h, mi);
+    }
+    const u = diesMes(a, m);
+    return new Date(a, m, u - ((diaSet(new Date(a, m, u)) - dsem + 7) % 7), h, mi);
+  }
   function seguent(rep, d) {
     if (!rep) return null;
     const x = new Date(d);
-    if (rep.t === 'dia') return sumaDies(x, 1);
+    const n = rep.n > 1 ? rep.n : 1;
+    if (rep.t === 'dia') return sumaDies(x, n);
     if (rep.t === 'setmana') {
+      if (n > 1) return sumaDies(x, 7 * n); // «cada 2 setmanes»: el mateix dia
       const dies = rep.dies && rep.dies.length ? rep.dies : [diaSet(x)];
       for (let i = 1; i <= 7; i++) { const y = sumaDies(x, i); if (dies.includes(diaSet(y))) return y; }
       return sumaDies(x, 7);
     }
     if (rep.t === 'mes') {
+      let a = x.getFullYear(), m = x.getMonth();
+      if (rep.nth) {
+        // «el primer dilluns de cada mes»
+        for (let i = 0; i < 24; i++) {
+          m += 1; if (m > 11) { m = 0; a++; }
+          const y = nthDia(a, m, rep.nth, rep.dsem, x.getHours(), x.getMinutes());
+          if (y && y > x) return y;
+        }
+        return null;
+      }
       const dia = rep.dia || x.getDate();
-      let a = x.getFullYear(), m = x.getMonth() + 1;
-      if (m > 11) { m = 0; a++; }
+      m += n;
+      while (m > 11) { m -= 12; a++; }
       return new Date(a, m, Math.min(dia, diesMes(a, m)), x.getHours(), x.getMinutes());
     }
     if (rep.t === 'any') {
-      const a = x.getFullYear() + 1, m = x.getMonth();
+      const a = x.getFullYear() + n, m = x.getMonth();
       return new Date(a, m, Math.min(x.getDate(), diesMes(a, m)), x.getHours(), x.getMinutes());
     }
     return null;
@@ -338,18 +439,24 @@
   /** Primera ocurrència a partir d'ara (inclòs avui si encara no ha passat). */
   function primera(rep, ara, h, m, base) {
     let d = ambHora(base || ara, h, m);
+    if (rep.t === 'mes' && rep.nth) {
+      const y = nthDia(d.getFullYear(), d.getMonth(), rep.nth, rep.dsem, h, m);
+      return y && y > ara ? y : seguent(rep, y || new Date(d.getFullYear(), d.getMonth(), 1, h, m));
+    }
     if (rep.t === 'mes' && rep.dia) {
       d = new Date(d.getFullYear(), d.getMonth(), Math.min(rep.dia, diesMes(d.getFullYear(), d.getMonth())), h, m);
       if (d <= ara) d = seguent(rep, d);
       return d;
     }
-    if (rep.t === 'setmana' && rep.dies && rep.dies.length && !rep.dies.includes(diaSet(d))) return seguent(rep, d);
-    if (d <= ara) d = seguent(rep, d);
+    // «cada 2 setmanes», «cada 15 dies»: si avui ja ha passat, la primera és la propera (no d'aquí a 15 dies)
+    const r1 = rep.n > 1 ? Object.assign({}, rep, { n: 1 }) : rep;
+    if (rep.t === 'setmana' && rep.dies && rep.dies.length && !rep.dies.includes(diaSet(d))) return seguent(r1, d);
+    if (d <= ara) d = seguent(r1, d);
     return d;
   }
 
   // ---------------------------------------------------------------- anàlisi
-  const HORES_DEF = { defecte: 9, primera: 8, mati: 9, migdia: 13, tarda: 17, vespre: 21 };
+  const HORES_DEF = { defecte: 9, primera: 8, mati: 9, migdia: 13, tarda: 17, vespre: 21, abansDinar: 13, despresDinar: 15, abansSopar: 20, despresSopar: 22 };
 
   function analitza(entrada, op) {
     op = op || {};
@@ -364,9 +471,47 @@
     // 1. salutació + nom de l'assistent
     if (!t.pren(c.inici)) t.pren(c.salutSol);
 
+    // 1b. acció sobre una cosa ja apuntada: «fet el del Macro», «mou el dentista a divendres», «desfés»...
+    let accio = null;
+    if (!op.senseAccio) {
+      const lead = /^[\s,.:;!]*/.exec(t.n)[0].length;
+      const cos0 = t.n.slice(lead);
+      for (const [nom, re] of [['desfes', c.accDesfes], ['afegeix', c.accAfegeix], ['fet', c.accFet], ['esborra', c.accEsborra], ['mou', c.accMou]]) {
+        const mm = re.exec(cos0);
+        if (mm && mm[0].length) { accio = nom; t.treu({ index: lead + mm.index, 0: mm[0] }); break; }
+      }
+      if (accio === 'desfes') return { tipus: 'accio', accio, original, llengua: L };
+      if (accio === 'fet') t.pren(c.accFetCua);
+    }
+
+    // 1c. llocs: «sóc al Mercadona» (desa on sóc), «he aparcat a la planta -2», «on he aparcat?»
+    if (!accio && !op.senseAccio) {
+      const lead = /^[\s,.:;!]*/.exec(t.n)[0].length;
+      const cos0 = t.n.slice(lead).replace(/[\s.!?]+$/, '');
+      const md = c.desaLloc.exec(cos0);
+      if (md) {
+        const g = md[1] ? 1 : md[2] ? 2 : 3;
+        const ini = lead + md.index + md[0].length - md[g].length;
+        const nom = t.o.substr(ini, md[g].length).replace(/^[\s,]+|[\s,.!?]+$/g, '');
+        if (nom && nom.split(/\s+/).length <= 4 && !/\d/.test(nom)) return { tipus: 'lloc', nom: cap(nom), original, llengua: L };
+      }
+      if (c.onCotxe.test(t.n)) return { tipus: 'onCotxe', original, llengua: L };
+      const ma = t.cerca(c.aparca);
+      if (ma) {
+        t.treu(ma);
+        t.pren(c.inici); t.pren(c.ordre);
+        return { tipus: 'aparca', nota: t.resta().replace(/^[\s,.:;!?-]+|[\s,.:;!?-]+$/g, ''), original, llengua: L };
+      }
+    }
+    // «quants dies falten per les vacances?»
+    const esCompte = !accio && c.compte.test(t.n.trim());
+    if (esCompte) t.pren(c.compte);
+
     // 2. pregunta o ordre?
     const teOrdre = c.ordre.test(t.n.replace(/^\s+/, ''));
-    const esPregunta = !teOrdre && (c.pregunta.test(t.n.trim()) || /\?\s*$/.test(original));
+    // «quan arribi a casa...» comença com una pregunta («quan?») però és un avís per lloc
+    const esLlocInici = /^\s*(?:quan|en|cuando|al|quand|when)\b/.test(t.n) && (c.onArriba.test(t.n.trim().split(/\s+/).slice(0, 6).join(' ')) || c.onSurt.test(t.n.trim().split(/\s+/).slice(0, 6).join(' ')));
+    const esPregunta = esCompte || (!accio && !teOrdre && !esLlocInici && (c.pregunta.test(t.n.trim()) || /\?\s*$/.test(original)));
     if (teOrdre) {
       const m = t.cerca(c.ordre);
       if (m) {
@@ -378,7 +523,9 @@
 
     // 3. avís sí / no, i avís previ
     let avis = null;
+    const insisteix = !!t.pren(c.insisteix);
     if (t.pren(c.avisNo)) avis = false;
+    if (insisteix && avis !== false) avis = true;
     let abans = 0;
     let m = t.pren(c.abansDia);
     if (m) { abans = 1440; avis = avis === false ? false : true; }
@@ -395,7 +542,19 @@
 
     // 4. repetició
     let rep = null;
-    if (t.pren(c.repFeiners)) rep = { t: 'setmana', dies: [1, 2, 3, 4, 5] };
+    if ((m = t.pren(c.repNth))) {
+      // «el primer dilluns de cada mes», «l'últim divendres de cada mes»
+      const nth = c.r.ordinals[m[1]] || 1, dsem = c.diaDe(m[2]);
+      if (dsem) rep = { t: 'mes', nth, dsem };
+    } else if (t.pren(c.repUltimDia)) rep = { t: 'mes', dia: 31 };
+    else if ((m = t.pren(c.repN))) {
+      // «cada 2 setmanes», «cada 15 dies», «every other week»
+      const n = m[1] === 'other' ? 2 : c.numDe(m[1]) || 1;
+      const u = { d: 'dia', j: 'dia', s: 'setmana', w: 'setmana', m: 'mes', a: 'any', y: 'any' }[m[2][0]] || 'dia';
+      rep = n > 1 ? { t: u, n } : { t: u };
+    }
+    if (rep) { /* ja la tenim */ }
+    else if (t.pren(c.repFeiners)) rep = { t: 'setmana', dies: [1, 2, 3, 4, 5] };
     else if (t.pren(c.repCap)) rep = { t: 'setmana', dies: [6, 7] };
     else if ((m = t.pren(c.repMesDia))) rep = { t: 'mes', dia: +(m[1] || m[2]) };
     else if (t.pren(c.repDia)) rep = { t: 'dia' };
@@ -426,6 +585,17 @@
       else if (u === 'd') dia = sumaDies(D0(ara), n);
       else if (u === 's') dia = sumaDies(D0(ara), 7 * n);
       else if (u === 'm') { dia = D0(ara); dia.setMonth(dia.getMonth() + n); }
+    }
+    // «posposa-ho una hora»: durada sense «d'aquí» (només per moure)
+    let durada = 0;
+    if (accio === 'mou' && !exacta && !dia && (m = t.pren(c.durada))) {
+      if (m[4]) durada = 30;
+      else {
+        const n = c.numDe(m[1]) || 1;
+        const u = c.r.unitats[m[2].toLowerCase()] || 'min';
+        const mig = m[3] ? 0.5 : 0;
+        durada = Math.round((n + mig) * ({ min: 1, h: 60, d: 1440, s: 10080 }[u] || 1));
+      }
     }
     if (t.pren(c.setmanaVe)) setmanaVe = true;
     if (t.pren(c.aquestaSetmana)) rang = 'setmana';
@@ -519,7 +689,12 @@
     if (h == null && t.pren(c.migdia)) { h = L === 'fr' || L === 'en' ? 12 : hores.migdia; mi = 0; horaExplicita = true; periode = '24'; }
     for (const [re, nom] of c.periodes) {
       const mm = t.cerca(re);
-      if (mm) { t.treu(mm); if (h == null) { h = hores[nom]; mi = 0; periode = '24'; } else if (!periode) periode = nom; break; }
+      if (mm) {
+        t.treu(mm);
+        if (h == null) { h = Math.floor(hores[nom]); mi = Math.round((hores[nom] % 1) * 60); periode = '24'; }
+        else if (!periode) { const pm = { despresDinar: 'tarda', abansSopar: 'vespre', despresSopar: 'vespre', abansDinar: null }; periode = nom in pm ? pm[nom] : nom; }
+        break;
+      }
     }
     if (periodeAvui && !dia && !exacta) dia = D0(ara);
     if (h != null && h > 24) h = null;
@@ -536,7 +711,42 @@
     for (const x of MARQUES) candidats.push([x, null, (PREP_MARCA[L] || {})[x] || null]);
     for (const [p, bonic, pr] of LLOCS[L]) candidats.push([p, bonic, pr]);
     candidats.sort((a, b) => b[0].length - a[0].length);
-    for (const [p, bonic, pr] of candidats) {
+    // «quan arribi a casa», «quan surti de la feina», «when I get to Mercadona»: avís per lloc
+    let on = null;
+    let mo = t.cerca(c.onArriba), tOn = 'arribar';
+    if (!mo) { mo = t.cerca(c.onSurt); tOn = 'sortir'; }
+    if (mo) {
+      t.treu(mo);
+      on = { t: tOn };
+      const pos = mo.index + mo[0].length;
+      const llista = [...candidats, ...CASA[L]].sort((a, b) => b[0].length - a[0].length);
+      let fet = false;
+      for (const [p, bonic, pr] of llista) {
+        const re = P('^\\s*(' + p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+') + ')(?=$|[\\s,.;:!?])');
+        const mm = re.exec(t.n.slice(pos));
+        if (!mm) continue;
+        const ini = pos + mm[0].length - mm[1].length;
+        const nomOrig = t.o.substr(ini, mm[1].length);
+        lloc = bonic || (MARQUES.includes(p) ? nomOrig.replace(/\b\p{L}/gu, (x) => x.toUpperCase()) : cap(nomOrig));
+        prep = pr || '';
+        t.treu({ index: ini, 0: mm[1] });
+        fet = true;
+        break;
+      }
+      if (!fet) {
+        // lloc que encara no coneix: la paraula que ve (o «can Pere»)
+        const mm = /^\s*((?:can|cal|ca la|chez)\s+\S+|[^\s,.;:!?]+)/.exec(t.n.slice(pos));
+        if (mm) {
+          const ini = pos + mm[0].length - mm[1].length;
+          lloc = cap(t.o.substr(ini, mm[1].length));
+          t.treu({ index: ini, 0: mm[1] });
+        }
+      }
+      if (!lloc) on = null;
+      // la preposició que s'ha dit («al Mercadona», «de la feina») → la d'«estar-hi» (al, a la, en el, au, at)
+      if (on && !prep) prep = prepDe(L, plana(mo[0]).trim().split(/\s+/).slice(-2).join(' '));
+    }
+    for (const [p, bonic, pr] of (on ? [] : candidats)) {
       const re = P('(^|[\\s,])(' + c.r.prepLloc + ')(' + p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+') + ')(?=$|[\\s,.;:!?])');
       const mm = t.cerca(re);
       if (!mm) continue;
@@ -576,6 +786,25 @@
     if (mod) resta = resta.slice(mod[0].length);
     resta = netejaVores(resta);
 
+    // ---------------- acció (fet, esborra, mou, afegeix-hi)
+    if (accio) {
+      res.tipus = 'accio';
+      res.accio = accio;
+      res.termes = plana(resta).split(/[^a-z0-9]+/).filter((w) => w.length >= 3 && !c.stop.has(w));
+      res.lloc = lloc;
+      res.insisteix = insisteix;
+      if (accio === 'afegeix') res.items = resta.split(c.sep).map((x) => netejaVores(x.trim())).filter(Boolean);
+      if (accio === 'mou') {
+        let nouDia = dia;
+        if (!nouDia && diaSetmana) nouDia = properDia(diaSetmana, ara, setmanaVe, true);
+        if (!nouDia && setmanaVe) nouDia = sumaDies(D0(ara), 7);
+        res.mou = { exacta, dia: nouDia, h: h != null ? h : null, m: h != null ? mi : 0, durada };
+      }
+      // si no hi ha res a què aplicar-ho, «canvia l'oli dijous» és una cosa nova
+      if (accio === 'mou' || accio === 'esborra') res.alternativa = analitza(original, Object.assign({}, op, { senseAccio: true }));
+      return res;
+    }
+
     // ---------------- pregunta
     if (esPregunta) {
       res.tipus = 'pregunta';
@@ -589,6 +818,7 @@
       res.pendents = c.pendent.test(plana(resta));
       const termes = plana(resta).replace(c.pendent, ' ').split(/[^a-z0-9]+/).filter((w) => w.length >= 3 && !c.stop.has(w));
       res.termes = termes;
+      res.compte = esCompte;
       if (lloc) res.lloc = lloc;
       return res;
     }
@@ -658,7 +888,39 @@
     res.rep = rep;
     res.avis = quan ? (avis == null ? op.avisDefecte !== false : avis) : false;
     res.abans = res.avis ? abans : 0;
+    res.insisteix = !!(res.avis && insisteix);
+    if (on) {
+      // avís per lloc: sense hora (sona en arribar o en sortir)
+      Object.assign(res, { on, quan: null, horaExplicita: false, rep: null, avis: true, abans: 0, insisteix: false, tipus: 'afegeix' });
+      if (!res.text && !items.length) res.text = cap(resta) || '';
+    }
     return res;
+  }
+
+  /** «arribi al» / «surti de la» → «al» / «a la» (preposició per dir on és) */
+  function prepDe(L, cua) {
+    const t = ' ' + cua + ' ';
+    const M = {
+      ca: [[/ (?:al|del|pel) $/, 'al'], [/ (?:la) $/, 'a la'], [/ l' ?$/, "a l'"], [/ cal $/, 'a cal'], [/ can $/, 'a can']],
+      es: [[/ (?:al|del) $/, 'en el'], [/ la $/, 'en la'], [/ el $/, 'en el']],
+      fr: [[/ (?:au|du) $/, 'au'], [/ la $/, 'à la'], [/ l' ?$/, "à l'"], [/ chez(?: le)? $/, 'chez']],
+      en: [[/ the $/, 'at the']],
+    }[L] || [];
+    for (const [re, p] of M) if (re.test(t)) return p;
+    return '';
+  }
+  /** «a la feina» → «de la feina» (per dir d'on surts) */
+  function llocDe(e, L) {
+    if (!e.lloc) return '';
+    const p = llocText(e, L).slice(0, -e.lloc.length).trim();
+    const D = {
+      ca: { al: 'del', 'a la': 'de la', "a l'": "de l'", 'a cal': 'de cal', 'a can': 'de can', a: /^[aeiouh]/i.test(plana(e.lloc)) ? "d'" : 'de' },
+      es: { 'en el': 'del', 'en la': 'de la', en: 'de' },
+      fr: { au: 'du', 'à la': 'de la', "à l'": "de l'", chez: 'de chez', 'à': /^[aeiouh]/i.test(plana(e.lloc)) ? "d'" : 'de' },
+      en: { 'at the': 'the', at: '' },
+    }[L] || {};
+    const q = p in D ? D[p] : p;
+    return !q ? e.lloc : q.endsWith("'") ? q + e.lloc : q + ' ' + e.lloc;
   }
 
   /** Pròxim dia de la setmana d (1-7). Si avui és d: avui (siAvui) o d'aquí 7 dies. */
@@ -746,5 +1008,5 @@
     return f((FR[L] || FR.ca).apuntat, { x }) + (e.avis ? (FR[L] || FR.ca).avisare : '');
   }
 
-  g.Interpret = { analitza, seguent, primera, quanText, queText, llocText, fraseAvis, frasePrevia, fraseConfirma, unir, plana, diaSet, TXT };
+  g.Interpret = { analitza, seguent, primera, quanText, queText, llocText, llocDe, fraseAvis, frasePrevia, fraseConfirma, unir, plana, diaSet, TXT };
 })(typeof window !== 'undefined' ? window : globalThis);

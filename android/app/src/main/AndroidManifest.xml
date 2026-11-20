@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -18,6 +19,21 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <!-- Soci com a assistent del mòbil (botó d'inici/engegada premut) i botó dels auriculars -->
+            <intent-filter>
+                <action android:name="android.intent.action.ASSIST" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VOICE_COMMAND" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <!-- Comparteix → Soci: apunta el text -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
             <!-- Drecera «Apunta» (mantenir premuda la icona) -->
             <meta-data android:name="android.app.shortcuts" android:resource="@xml/dreceres" />
         </activity>
@@ -33,6 +49,26 @@
                 <action android:name="android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED" />
             </intent-filter>
         </receiver>
+
+        <!-- Respon per veu a un avís: «fet», «d'aquí 10 minuts», «demà» (també amb el mòbil bloquejat) -->
+        <activity
+            android:name=".Respon"
+            android:theme="@style/SociRespon"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:launchMode="singleInstance"
+            android:taskAffinity="cat.xoriguer.soci.respon"
+            android:showWhenLocked="true"
+            android:turnScreenOn="true" />
+
+        <!-- «Hey soci» sempre escoltant (sense connexió) -->
+        <service
+            android:name=".Escolta"
+            android:exported="false"
+            android:foregroundServiceType="microphone" />
+
+        <!-- Has arribat a un lloc desat (o n'has sortit) -->
+        <receiver android:name=".LlocReceptor" android:exported="false" />
 
         <!-- Giny de la pantalla d'inici -->
         <receiver android:name=".Giny" android:label="@string/app_name" android:exported="true">
@@ -63,9 +99,23 @@
         </provider>
     </application>
 
-    <!-- Sense permís d'Internet: el que apuntes no surt del mòbil.
+    <!-- Sense permís d'Internet: el que apuntes no surt del mòbil (cap llibreria el pot afegir: vegeu tools:node="remove").
          (El reconeixement de veu el fa el servei de veu del sistema, no Soci.) -->
+    <uses-permission android:name="android.permission.INTERNET" tools:node="remove" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" tools:node="remove" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <!-- Opcional (Ajustos): llegir el calendari del mòbil per a «què tinc demà?» i el resum del matí. No hi escriu. -->
+    <uses-permission android:name="android.permission.READ_CALENDAR" />
+    <!-- 1.2: avisos en arribar a un lloc o en sortir-ne (opcional; la ubicació no surt del mòbil) -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    <!-- 1.2: «hey soci» sempre escoltant, amb notificació fixa -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
+    <!-- 1.2: bombolla de «hey soci» (permet obrir Soci quan el crides) i respondre l'avís amb el mòbil bloquejat -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />

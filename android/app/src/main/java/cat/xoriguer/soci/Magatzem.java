@@ -77,9 +77,11 @@ final class Magatzem {
     static LocalDateTime seguent(JSONObject rep, LocalDateTime d) {
         if (rep == null || d == null) return null;
         String t = rep.optString("t");
+        int n = Math.max(1, rep.optInt("n", 1));
         switch (t) {
-            case "dia": return d.plusDays(1);
+            case "dia": return d.plusDays(n);
             case "setmana": {
+                if (n > 1) return d.plusWeeks(n); // «cada 2 setmanes»: el mateix dia
                 JSONArray dies = rep.optJSONArray("dies");
                 if (dies == null || dies.length() == 0) return d.plusWeeks(1);
                 for (int i = 1; i <= 7; i++) {
@@ -90,13 +92,36 @@ final class Magatzem {
                 return d.plusWeeks(1);
             }
             case "mes": {
+                int nth = rep.optInt("nth", 0);
+                if (nth != 0) {
+                    // «el primer dilluns de cada mes» (nth = -1: l'últim)
+                    int dsem = rep.optInt("dsem", 1);
+                    LocalDate m = d.toLocalDate().withDayOfMonth(1);
+                    for (int i = 0; i < 24; i++) {
+                        m = m.plusMonths(1);
+                        LocalDate y = nthDia(m, nth, dsem);
+                        if (y != null) return LocalDateTime.of(y, d.toLocalTime());
+                    }
+                    return null;
+                }
                 int dia = rep.optInt("dia", d.getDayOfMonth());
-                LocalDate m = d.toLocalDate().withDayOfMonth(1).plusMonths(1);
+                LocalDate m = d.toLocalDate().withDayOfMonth(1).plusMonths(n);
                 return LocalDateTime.of(m.withDayOfMonth(Math.min(dia, m.lengthOfMonth())), d.toLocalTime());
             }
-            case "any": return d.plusYears(1);
+            case "any": return d.plusYears(n);
             default: return null;
         }
+    }
+
+    /** El n-è dia de la setmana dsem (1 = dilluns) del mes de m; n = -1 és l'últim; null si no n'hi ha. */
+    static LocalDate nthDia(LocalDate m, int n, int dsem) {
+        LocalDate p = m.withDayOfMonth(1);
+        if (n > 0) {
+            int d = 1 + ((dsem - p.getDayOfWeek().getValue() + 7) % 7) + 7 * (n - 1);
+            return d > p.lengthOfMonth() ? null : p.withDayOfMonth(d);
+        }
+        LocalDate u = p.withDayOfMonth(p.lengthOfMonth());
+        return u.minusDays((u.getDayOfWeek().getValue() - dsem + 7) % 7);
     }
 
     /** Avança una repetició fins que sigui al futur. Retorna true si ha canviat. */

@@ -47,12 +47,16 @@ final class Avisos {
     }
 
     /** Mostra l'avís d'una entrada. previ = avís d'abans de l'hora. */
-    static void mostra(Context c, JSONObject dades, JSONObject e, boolean previ) {
+    static void mostra(Context c, JSONObject dades, JSONObject e, boolean previ) { mostra(c, dades, e, previ, null, false); }
+    static void mostra(Context c, JSONObject dades, JSONObject e, boolean previ, String cosForcat) { mostra(c, dades, e, previ, cosForcat, false); }
+
+    /** pantalla = obre Respon a pantalla completa (mòbil bloquejat): diu l'avís i escolta la resposta. */
+    static void mostra(Context c, JSONObject dades, JSONObject e, boolean previ, String cosForcat, boolean pantalla) {
         canals(c, dades);
         String id = e.optString("id");
         String titol = e.optString("text", "");
         if (titol.isEmpty()) titol = e.optString("lloc", "Soci");
-        String cos = previ ? e.optString("frasePrevia", e.optString("frase", "")) : e.optString("frase", "");
+        String cos = cosForcat != null ? cosForcat : previ ? e.optString("frasePrevia", e.optString("frase", "")) : e.optString("frase", "");
         NotificationCompat.Builder b = new NotificationCompat.Builder(c, CANAL)
                 .setSmallIcon(R.drawable.ic_stat_soci)
                 .setColor(0xFFF2650F)
@@ -64,10 +68,11 @@ final class Avisos {
                 .setContentIntent(obreApp(c))
                 .setAutoCancel(true);
         if (!previ) {
+            // Android només n'ensenya 3: la resta («+1 h», «demà»...) es diu parlant amb «Respon»
             b.addAction(0, Magatzem.t(dades, "fet", "Fet"), accio(c, FET, id, 0));
             b.addAction(0, Magatzem.t(dades, "m10", "+10 min"), accio(c, POSPOSA, id, 10));
-            b.addAction(0, Magatzem.t(dades, "h1", "+1 h"), accio(c, POSPOSA, id, 60));
-            b.addAction(0, Magatzem.t(dades, "dema", "Demà"), accio(c, DEMA, id, 0));
+            b.addAction(R.drawable.ic_stat_soci, "🎤 " + Magatzem.t(dades, "respon", "Respon"), Respon.pi(c, id, cos, false));
+            if (pantalla) b.setFullScreenIntent(Respon.pi(c, id, cos, true), true);
         }
         try { NotificationManagerCompat.from(c).notify(previ ? idNot(id) + 1 : idNot(id), b.build()); }
         catch (SecurityException ignored) { /* sense permís de notificacions */ }

@@ -5,3 +5,5 @@ android/local.properties
 .claude/
 CLAUDE.md
 __pycache__/
+android/app/src/main/assets/model-ca/
+eines/model-ca.zip

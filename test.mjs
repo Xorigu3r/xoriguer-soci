@@ -7,7 +7,9 @@ const dt = (d) => d ? `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2,
 
 function prova(L, frase, esperat) {
   const r = I.analitza(frase, { L, ara: ARA, llocs: ['Can Pere'] });
-  const obt = { tipus: r.tipus, text: r.text, lloc: r.lloc || '', quan: dt(r.quan), avis: r.avis, abans: r.abans || 0, rep: r.rep ? JSON.stringify(r.rep) : null, items: (r.items || []).join('|'), termes: (r.termes || []).join(' '), rang: r.rang ? dt(r.rang.de) + '..' + dt(r.rang.a) : null };
+  const obt = { tipus: r.tipus, text: r.text, lloc: r.lloc || '', quan: dt(r.quan), avis: r.avis, abans: r.abans || 0, rep: r.rep ? JSON.stringify(r.rep) : null, items: (r.items || []).join('|'), termes: (r.termes || []).join(' '), rang: r.rang ? dt(r.rang.de) + '..' + dt(r.rang.a) : null,
+    accio: r.accio || '', insisteix: !!r.insisteix, alt: r.alternativa ? r.alternativa.tipus + ':' + r.alternativa.text : '',
+    mou: r.mou ? [r.mou.exacta ? dt(r.mou.exacta) : '-', r.mou.dia ? dt(r.mou.dia).slice(0, 10) : '-', r.mou.h != null ? r.mou.h + ':' + r.mou.m : '-', r.mou.durada].join(' ') : '' };
   const errors = [];
   for (const [k, v] of Object.entries(esperat)) if (obt[k] !== v) errors.push(`${k}: «${obt[k]}» (esperat «${v}»)`);
   if (errors.length) { ko++; console.log(`✗ [${L}] ${frase}\n    ${errors.join('\n    ')}`); }
@@ -65,6 +67,77 @@ prova('en', 'every monday at 8 am take out the trash', { quan: '2026-11-23 08:00
 prova('en', 'dentist on december 15th at half past 4', { lloc: 'dentist', quan: '2026-12-15 16:30' });
 prova('en', 'what do i have tomorrow', { tipus: 'pregunta', rang: '2026-11-21 00:00..2026-11-21 23:59' });
 prova('en', 'buy milk, eggs and bread at mercadona', { lloc: 'Mercadona', items: 'milk|eggs|bread' });
+
+// ---- 1.1: accions sobre el que ja hi ha, insistència i moments del dia
+prova('ca', 'fet el del macro', { tipus: 'accio', accio: 'fet', lloc: 'Macro', termes: '' });
+prova('ca', 'ja he comprat les patates', { tipus: 'accio', accio: 'fet', termes: 'comprat patates' });
+prova('ca', 'marca el dentista com a fet', { accio: 'fet', lloc: 'dentista', termes: '' });
+prova('ca', 'esborra la del lampista', { accio: 'esborra', termes: 'lampista' });
+prova('ca', 'hey soci, esborra-ho', { accio: 'esborra', termes: '', lloc: '' });
+prova('ca', 'mou el dentista a divendres a les 6', { accio: 'mou', lloc: 'dentista', mou: '- 2026-11-20 18:0 0' });
+prova('ca', 'posposa-ho una hora', { accio: 'mou', termes: '', mou: '- - - 60' });
+prova('ca', "canvia l'oli del cotxe dijous", { accio: 'mou', alt: "afegeix:Canvia l'oli del cotxe" });
+prova('ca', 'passa la reunió a demà', { accio: 'mou', termes: 'reunio', mou: '- 2026-11-21 - 0' });
+prova('ca', 'i també ous i formatge', { accio: 'afegeix', items: 'ous|formatge' });
+prova('ca', 'desfés', { tipus: 'accio', accio: 'desfes' });
+prova('ca', 'treure les escombraries cada dilluns', { tipus: 'afegeix', accio: '' });
+prova('ca', "recorda'm prendre la pastilla cada dia a les 9 fins que ho faci", { text: 'Prendre la pastilla', insisteix: true, avis: true, rep: '{"t":"dia"}' });
+prova('ca', "demà després de dinar trucar a l'Anna", { text: "Trucar a l'Anna", quan: '2026-11-21 15:00' });
+prova('ca', 'avui abans de sopar regar les plantes', { text: 'Regar les plantes', quan: '2026-11-20 20:00' });
+prova('ca', 'he de comprar pa demà', { tipus: 'afegeix', accio: '', text: 'Comprar pa' });
+prova('es', 'ya he comprado el pan', { accio: 'fet', termes: 'comprado pan' });
+prova('es', 'mueve el dentista al jueves a las 5', { accio: 'mou', lloc: 'dentista', mou: '- 2026-11-26 17:0 0' });
+prova('es', 'bórralo', { accio: 'esborra', termes: '' });
+prova('es', 'mañana después de comer llamar al banco y no pares de avisarme', { lloc: 'banco', quan: '2026-11-21 15:00', insisteix: true });
+prova('fr', "c'est fait", { accio: 'fet', termes: '' });
+prova('fr', 'déplace le dentiste à jeudi', { accio: 'mou', lloc: 'dentiste', mou: '- 2026-11-26 - 0' });
+prova('en', 'done', { accio: 'fet' });
+prova('en', 'postpone it by half an hour', { accio: 'mou', mou: '- - - 30' });
+prova('en', 'delete the plumber', { accio: 'esborra', termes: 'plumber' });
+prova('en', 'take my pills after dinner every day and keep reminding me', { insisteix: true, quan: '2026-11-20 22:00', rep: '{"t":"dia"}' });
+
+// ---- 1.2: llocs, aparcar, repeticions amb interval, compte enrere
+const pr2 = (L, f, esp) => {
+  const r = I.analitza(f, { L, ara: ARA, llocs: ['Can Pere'] });
+  const obt = { tipus: r.tipus, nom: r.nom || '', nota: r.nota || '', on: r.on ? r.on.t : '', lloc: r.lloc || '', text: r.text || '', items: (r.items || []).join('|'), compte: !!r.compte, termes: (r.termes || []).join(' '), rep: r.rep ? JSON.stringify(r.rep) : null, quan: dt(r.quan) };
+  const errors = Object.entries(esp).filter(([k, v]) => obt[k] !== v).map(([k, v]) => `${k}: «${obt[k]}» (esperat «${v}»)`);
+  if (errors.length) { ko++; console.log(`✗ [${L}] ${f}\n    ${errors.join('\n    ')}`); } else ok++;
+};
+pr2('ca', 'sóc al Mercadona', { tipus: 'lloc', nom: 'Mercadona' });
+pr2('ca', 'hey soci, estic a casa', { tipus: 'lloc', nom: 'Casa' });
+pr2('ca', 'desa aquest lloc com a la feina', { tipus: 'lloc', nom: 'La feina' });
+pr2('ca', 'estic a punt de sortir de casa ara mateix ja', { tipus: 'afegeix' });
+pr2('ca', 'he aparcat a la planta -2 plaça 45', { tipus: 'aparca', nota: 'a la planta -2 plaça 45' });
+pr2('ca', 'on he aparcat?', { tipus: 'onCotxe' });
+pr2('ca', 'quan arribi a casa trucar a la mare', { tipus: 'afegeix', on: 'arribar', lloc: 'casa', text: 'Trucar a la mare', quan: null });
+pr2('ca', 'quan arribi al mercadona compra llet i ous', { on: 'arribar', lloc: 'Mercadona', items: 'llet|ous' });
+pr2('ca', 'recorda\'m quan surti de la feina passar per la farmàcia', { on: 'sortir', lloc: 'feina', text: 'Passar per la farmàcia' });
+pr2('ca', 'quan passi per can pere tornar-li el llibre', { on: 'arribar', lloc: 'Can Pere' });
+pr2('ca', 'quan arribi a Sabadell comprar torrons', { on: 'arribar', lloc: 'Sabadell', text: 'Comprar torrons' });
+pr2('ca', 'cada 2 setmanes regar el bonsai', { rep: '{"t":"setmana","n":2,"dies":[5]}', quan: '2026-11-27 09:00' });
+pr2('ca', 'cada quinze dies canviar els llençols', { rep: '{"t":"dia","n":15}', quan: '2026-11-21 09:00' });
+pr2('ca', 'el primer dilluns de cada mes reunió de veïns a les 8 del vespre', { rep: '{"t":"mes","nth":1,"dsem":1}', quan: '2026-12-07 20:00' });
+pr2('ca', "l'últim divendres de cada mes sopar", { rep: '{"t":"mes","nth":-1,"dsem":5}', quan: '2026-11-27 09:00' });
+pr2('ca', "l'últim dia de cada mes pagar la quota", { rep: '{"t":"mes","dia":31}', quan: '2026-11-30 09:00' });
+pr2('ca', 'quants dies falten per les vacances?', { tipus: 'pregunta', compte: true, termes: 'vacances' });
+pr2('es', 'estoy en el Mercadona', { tipus: 'lloc', nom: 'Mercadona' });
+pr2('es', 'cuando llegue a casa llamar a mamá', { on: 'arribar', lloc: 'casa', text: 'Llamar a mamá' });
+pr2('es', 'cuando salga del trabajo comprar pan', { on: 'sortir', lloc: 'trabajo' });
+pr2('es', 'he aparcado en la planta 3', { tipus: 'aparca' });
+pr2('es', '¿dónde he aparcado?', { tipus: 'onCotxe' });
+pr2('es', 'cuántos días faltan para mi cumpleaños', { compte: true, termes: 'cumpleanos' });
+pr2('es', 'cada 3 meses revisar la caldera', { rep: '{"t":"mes","n":3}' });
+pr2('fr', 'je suis chez Lidl', { tipus: 'lloc', nom: 'Lidl' });
+pr2('fr', 'quand j\'arrive à la maison appeler maman', { on: 'arribar', lloc: 'maison' });
+pr2('fr', 'où est ma voiture', { tipus: 'onCotxe' });
+pr2('en', "i'm at the gym", { tipus: 'lloc', nom: 'Gym' });
+pr2('en', 'when i get home call mum', { on: 'arribar', lloc: 'home', text: 'Call mum' });
+pr2('en', 'when i leave work buy flowers', { on: 'sortir', lloc: 'work' });
+pr2('en', 'every other week water the plants', { rep: '{"t":"setmana","n":2,"dies":[5]}' });
+pr2('en', 'where did i park', { tipus: 'onCotxe' });
+pr2('en', 'how many days until christmas', { compte: true, termes: 'christmas' });
+const s2 = I.seguent({ t: 'mes', nth: 1, dsem: 1 }, new Date(2026, 11, 7, 20)); // 1r dilluns: 7/12 → 4/1
+if (dt(s2) !== '2027-01-04 20:00') { ko++; console.log('✗ seguent nth', dt(s2)); } else ok++;
 
 // ---- repeticions
 const s = I.seguent({ t: 'setmana', dies: [1, 4] }, new Date(2026, 10, 23, 8)); // dl → dj

@@ -76,7 +76,7 @@ button.enllac { background: none; border: 0; padding: 0; color: var(--taronja); 
 .ordre input { flex: 1; min-width: 0; }
 .ordre button { width: 48px; padding: 0; font-size: 1.2rem; }
 
-input[type=text], input[type=search], input[type=date], input[type=time], select, textarea {
+input[type=text], input[type=search], input[type=date], input[type=time], input[type=number], select, textarea {
   width: 100%; background: var(--fons3); border: 1px solid var(--linia); border-radius: 12px; padding: 10px 12px; outline: none; }
 input:focus, select:focus, textarea:focus { border-color: var(--taronja); }
 input[type=range] { width: 100%; accent-color: var(--taronja); }
@@ -186,3 +186,14 @@ dialog::backdrop { background: rgba(10,16,26,.6); }
 .toast button { padding: 4px 10px; }
 
 @media (max-width: 380px) { .tres { grid-template-columns: 1fr; } .mic { width: 116px; height: 116px; } }
+
+/* 1.1: compartir llista i esdeveniments del calendari */
+.llista-lloc h2 button.petit { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; font-size: .82rem; font-weight: 600; }
+.check.cal { border: none; font-size: 1.1rem; color: inherit; }
+.entrada.cal .tit { color: var(--suau); }
+
+/* 1.2: llocs */
+.dos-boto { display: flex; gap: 8px; margin: 10px 0; }
+.dos-boto input { flex: 1; min-width: 0; }
+#llista-llocs li.buit { display: block; color: var(--suau); border-top: 0; }
+#llista-llocs button.petit { padding: 6px 9px; }

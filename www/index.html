@@ -104,6 +104,45 @@
         <button id="b-giny" data-nomes-natiu>Afegeix el giny a la pantalla d'inici</button>
       </div>
 
+      <div class="targeta form" data-nomes-natiu>
+        <h2>«Hey soci» sempre escoltant</h2>
+        <label class="interruptor"><input type="checkbox" id="a-hey"> <span>Escolta sempre: digues «hey soci» (o el nom que li hagis posat) i parla, sense tocar el mòbil</span></label>
+        <p class="suau petit" id="hey-estat" data-no-t></p>
+        <p class="suau petit">Funciona sense connexió: el reconeixement del nom es fa dins el mòbil i no surt res. Gasta una mica més de bateria i Android mostra el punt verd del micròfon i una notificació fixa (des d'allà també el pots aturar).</p>
+        <ul class="passos">
+          <li id="p-superposar"><span class="punt neutre"></span><div><b>Mostra sobre altres apps</b><small>Recomanat: posa una bombolla petita i així Soci s'obre sol quan el crides.</small></div><button data-permis="superposar">Obre</button></li>
+        </ul>
+      </div>
+
+      <div class="targeta form" data-nomes-natiu>
+        <h2>Respon per veu</h2>
+        <label class="interruptor"><input type="checkbox" id="a-respon"> <span>Després d'avisar, escolta la resposta: «fet», «d'aquí 10 minuts», «demà», «repeteix»</span></label>
+        <p class="suau petit">Amb el mòbil bloquejat, l'avís surt a pantalla completa, Soci el diu i t'escolta. Amb el mòbil a la mà, toca «🎤 Respon» a la notificació.</p>
+        <ul class="passos">
+          <li id="p-pantalla"><span class="punt neutre"></span><div><b>Avisos a pantalla completa</b><small>Perquè pugui escoltar-te amb el mòbil bloquejat.</small></div><button data-permis="pantalla">Obre</button></li>
+        </ul>
+      </div>
+
+      <div class="targeta form">
+        <h2>Llocs</h2>
+        <p class="suau">Soci t'avisa quan arribes a un lloc o en surts: «quan arribi al Mercadona compra llet», «quan surti de la feina truca a la mare». Primer ha de saber on és: quan hi siguis, digues «sóc al Mercadona» o desa'l aquí.</p>
+        <p class="suau petit" id="avis-google" hidden>Aquest mòbil no té els serveis de Google: els avisos per lloc no funcionaran (la resta, sí).</p>
+        <ul class="passos" data-nomes-natiu>
+          <li id="p-ubicacio-sempre"><span class="punt neutre"></span><div><b>Ubicació: Permet sempre</b><small>Cal per avisar-te en arribar amb l'app tancada. La ubicació no surt del mòbil.</small></div><button data-permis="ubicacioSempre">Permet</button></li>
+        </ul>
+        <ul class="passos" id="llista-llocs" data-no-t></ul>
+        <div class="dos-boto"><input id="nou-lloc" type="text" placeholder="Nom (p. ex. Casa, Mercadona)" maxlength="40"><button id="b-desa-lloc" class="primari">Desa on sóc ara</button></div>
+        <label class="interruptor"><input type="checkbox" id="a-avis-llocs"> <span>Avisa'm també de les llistes quan arribi al lloc («Ets al Mercadona: llet, ous…»)</span></label>
+      </div>
+
+      <div class="targeta" data-nomes-natiu>
+        <h2>Soci com a assistent</h2>
+        <p class="suau">Fes que Soci sigui l'assistent del mòbil: mantenint premut el botó d'inici o d'engegada (segons el mòbil) t'escolta al moment. Amb auriculars Bluetooth, mantén premut el botó dels auriculars.</p>
+        <p class="suau petit" id="assistent-estat" data-no-t></p>
+        <button id="b-assistent">Fes de Soci l'assistent</button>
+        <p class="suau petit">També pots compartir un missatge, un correu o una web cap a Soci (botó Comparteix → Soci) i ho apunta.</p>
+      </div>
+
       <div class="targeta form">
         <h2>Idioma i veu</h2>
         <label>Idioma
@@ -116,6 +155,7 @@
         <label class="interruptor"><input type="checkbox" id="a-parla"> <span>Diu els avisos en veu alta</span></label>
         <label>Velocitat de la veu <input id="a-velocitat" type="range" min="0.6" max="1.6" step="0.1"></label>
         <button id="b-prova-veu">Prova la veu</button>
+        <label class="interruptor" data-nomes-natiu><input type="checkbox" id="a-sense-xarxa"> <span>Dictat sense connexió (més privat; cal descarregar l'idioma a Google → Veu → Idiomes sense connexió)</span></label>
       </div>
 
       <div class="targeta form">
@@ -127,6 +167,9 @@
           <label>«al vespre» <input id="a-vespre" type="time"></label>
         </div>
         <label class="interruptor"><input type="checkbox" id="a-avis"> <span>Avisa sempre que hi hagi data (encara que no diguis «avisa'm»)</span></label>
+        <label class="interruptor" data-nomes-natiu><input type="checkbox" id="a-insisteix"> <span>Insisteix fins que ho marquis com a fet (també ho pots demanar per a una sola cosa: «fins que ho faci»)</span></label>
+        <label data-nomes-natiu>Torna a avisar cada (minuts) <input id="a-insisteix-min" type="number" min="2" max="120" step="1" inputmode="numeric"></label>
+        <label class="interruptor" data-nomes-natiu><input type="checkbox" id="a-calendari"> <span>Inclou el calendari del mòbil a les respostes («què tinc demà?») i al resum del matí</span></label>
       </div>
 
       <div class="targeta form">
@@ -166,6 +209,13 @@
           <p>Repetició: <b>cada dia, cada dilluns, entre setmana, el dia 1 de cada mes, cada any</b>.</p>
           <p>Avís previ: <b>avisa'm el dia abans</b>, <b>una hora abans</b>, <b>10 minuts abans</b>.</p>
         </details>
+        <details><summary>Canviar el que ja hi ha</summary>
+          <p>Marca com a fet, mou, posposa, esborra o afegeix a la darrera cosa (o digues de quina parles):</p>
+          <ul class="punts" data-no-t id="g-canviar"></ul>
+        </details>
+        <details><summary>Llocs i cotxe</summary>
+          <ul class="punts" data-no-t id="g-llocs"></ul>
+        </details>
         <details><summary>Preguntar</summary>
           <ul class="punts" data-no-t id="g-preguntar"></ul>
         </details>
@@ -203,6 +253,7 @@
         </label>
         <div id="ed-dies" class="xips" hidden></div>
         <label class="interruptor"><input type="checkbox" id="ed-avis"> <span>Avisa'm</span></label>
+        <label class="interruptor" data-nomes-natiu><input type="checkbox" id="ed-insisteix"> <span>Insisteix fins que ho faci</span></label>
         <label>Avís previ
           <select id="ed-abans">
             <option value="0">Cap</option><option value="10">10 minuts abans</option><option value="30">30 minuts abans</option><option value="60">1 hora abans</option><option value="180">3 hores abans</option><option value="1440">El dia abans</option><option value="10080">Una setmana abans</option>
