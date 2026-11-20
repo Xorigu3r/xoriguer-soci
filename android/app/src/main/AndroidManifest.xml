@@ -99,9 +99,8 @@
         </provider>
     </application>
 
-    <!-- Sense permís d'Internet: el que apuntes no surt del mòbil (cap llibreria el pot afegir: vegeu tools:node="remove").
-         (El reconeixement de veu el fa el servei de veu del sistema, no Soci.) -->
-    <uses-permission android:name="android.permission.INTERNET" tools:node="remove" />
+    <!-- INTERNET (a baix) només per a XoriguerObliga: llegeix xoriguer.dev/versions/soci/versio.json i baixa l'APK nova.
+         El que apuntes no surt mai del mòbil. (El reconeixement de veu el fa el servei de veu del sistema, no Soci.) -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" tools:node="remove" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <!-- Opcional (Ajustos): llegir el calendari del mòbil per a «què tinc demà?» i el resum del matí. No hi escriu. -->
@@ -134,4 +133,6 @@
             <action android:name="android.intent.action.TTS_SERVICE" />
         </intent>
     </queries>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 </manifest>

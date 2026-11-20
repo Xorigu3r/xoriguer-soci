@@ -1,6 +1,6 @@
 /* Xoriguer Soci — interfície. La lògica de llenguatge és a interpret.js. */
 'use strict';
-const VERSIO = '1.2.0';
+const VERSIO = '1.2.1';
 const T_ = (s, v) => (typeof I18N !== 'undefined' ? I18N.t(s, v) : s);
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -1016,6 +1016,10 @@ $('#b-desa-lloc').addEventListener('click', () => {
   if (!nom) { $('#nou-lloc').focus(); return; }
   $('#nou-lloc').value = '';
   desaLloc(nom, '').then(pintaLlocs);
+});
+$('#b-actualitza').addEventListener('click', () => {
+  if (natiu) S.actualitza().catch(() => {});
+  else window.open('https://xoriguer.dev/#soci', '_blank', 'noopener');
 });
 $('#b-assistent').addEventListener('click', () => S.obreAssistent().catch(() => toast(T_('Aquest mòbil no ho permet des d\'aquí: Ajustos → Aplicacions → Aplicacions predeterminades → Assistent digital.'))));
 $('#a-idioma').addEventListener('change', async (ev) => { D.ajustos.idioma = ev.target.value; I18N.posa(D.ajustos.idioma); await desa(); aplicaIdioma(); });

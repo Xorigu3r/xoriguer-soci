@@ -12,6 +12,7 @@ public class MainActivity extends BridgeActivity {
     public void onCreate(Bundle savedInstanceState) {
         registerPlugin(SociPlugin.class); // abans de super.onCreate
         super.onCreate(savedInstanceState);
+        XoriguerObliga.comprova(this, "soci");
         mira(getIntent());
     }
 

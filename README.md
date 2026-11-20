@@ -20,7 +20,7 @@ Assistent de veu per a Android: li dius què has de fer i quan, ho apunta i t'ho
 - **Giny**, botó a la **barra ràpida** i drecera a la icona: un toc i ja escolta.
 - Agenda, notes, resum del matí i còpia diària a Documents/Soci.
 
-**Privadesa:** l'app no té permís d'Internet. El reconeixement de veu el fa el servei de veu del mòbil.
+**Privadesa:** res del que apuntes surt del mòbil. L'app només es connecta a xoriguer.dev per buscar actualitzacions. El reconeixement de veu el fa el servei de veu del mòbil (o, per a «hey soci», el mateix mòbil).
 
 ## Instal·lar
 Baixa `XoriguerSoci.apk` de les [Releases](https://github.com/Xorigu3r/xoriguer-soci/releases), instal·la-la i

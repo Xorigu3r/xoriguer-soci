@@ -422,6 +422,13 @@ public class SociPlugin extends Plugin {
         try { getContext().startActivity(i); return true; } catch (Exception e) { return false; }
     }
 
+    /** Botó «Busca actualitzacions» d'Ajustos. */
+    @PluginMethod
+    public void actualitza(PluginCall call) {
+        getActivity().runOnUiThread(() -> XoriguerObliga.busca(getActivity(), "soci"));
+        call.resolve();
+    }
+
     // ---------------------------------------------------------------- llocs i «hey soci» (1.2)
     /** On sóc ara: {lat, lon, precisio}. */
     @PluginMethod
